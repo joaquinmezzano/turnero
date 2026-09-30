@@ -1,0 +1,15 @@
+*.iml
+.gradle/
+.kotlin/
+build/
+captures/
+.externalNativeBuild/
+.cxx/
+local.properties
+.idea/
+.DS_Store
+*.hprof
+*.jks
+*.keystore
+/androidx/**/build/
+google-services.json

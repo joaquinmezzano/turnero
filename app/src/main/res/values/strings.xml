@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Turnero</string>
+    <string name="agenda_title">Agenda</string>
+    <string name="agenda_empty_title">Sin turnos para este día</string>
+    <string name="agenda_empty_body">Tocá + para agregar el primer turno.</string>
+</resources>

@@ -1,0 +1,46 @@
+# El config por defecto de detekt 1.23+ se aplica siempre.
+# Para habilitar TODAS las reglas: allRules = true (ver app/build.gradle.kts).
+
+config:
+  validation: true
+  warningsAsErrors: false
+
+complexity:
+  LongParameterList:
+    functionThreshold: 8
+    constructorThreshold: 10
+    ignoreDefaultParameters: true
+  LongMethod:
+    threshold: 80
+  TooManyFunctions:
+    thresholdInClasses: 20
+    thresholdInFiles: 20
+
+naming:
+  FunctionNaming:
+    ignoreAnnotated: [ 'Composable' ]
+
+style:
+  MagicNumber:
+    active: false
+  ReturnCount:
+    active: false
+  MaxLineLength:
+    maxLineLength: 120
+    excludeCommentStatements: true
+  UnusedPrivateMember:
+    active: true
+  ForbiddenComment:
+    active: true
+    comments:
+      - reason: 'Borrador incompleto'
+        value: 'TODO:'
+      - reason: 'Fix pendiente'
+        value: 'FIXME:'
+
+exceptions:
+  TooGenericExceptionCaught:
+    active: true
+
+# domain/ no debe depender de Android ni de data: se valida con el subagente
+# domain-reviewer y con las reglas de imports documentadas en AGENTS.md.

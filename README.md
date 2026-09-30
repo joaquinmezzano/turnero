@@ -484,7 +484,7 @@ Once slices, en orden. Cada uno termina con
 
 | # | Slice | Entregable |
 |---|---|---|
-| 0 | **Bootstrap** | Toolchain, scaffold, CI, detekt, AGENTS.md, subagentes. ✅ |
+| 0 | **Bootstrap** | Toolchain, scaffold, CI, detekt, AGENTS.md, subagentes. |
 | 1 | **Cableado** | `Servicio` de punta a punta: entity → dao → mapper → repo → use case → ViewModel → screen. Prueba que DI, KSP y las capas funcionan. |
 | 2 | **Clientes** | Listado, ficha, alta/edición, búsqueda por nombre. |
 | 3 | **Turnos** | CRUD + estados + validación de solapamiento. |
