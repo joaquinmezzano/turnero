@@ -4,4 +4,42 @@
     <string name="agenda_title">Agenda</string>
     <string name="agenda_empty_title">Sin turnos para este día</string>
     <string name="agenda_empty_body">Tocá + para agregar el primer turno.</string>
+
+    <!-- Listado de servicios -->
+    <string name="servicios_title">Servicios</string>
+    <string name="servicios_agregar_desc">Agregar servicio</string>
+    <string name="servicios_editar_desc">Editar %1$s</string>
+    <string name="servicios_eliminar_desc">Eliminar %1$s</string>
+    <string name="servicios_vacio_titulo">Todavía no definiste servicios</string>
+    <string name="servicios_vacio_cuerpo">Cargá el catálogo para poder asignarle un servicio a cada turno.</string>
+    <string name="servicios_vacio_accion">Agregar el primero</string>
+    <string name="servicios_error_carga">No se pudieron cargar tus servicios. Intentá de nuevo en un momento.</string>
+    <string name="servicios_borrar_titulo">¿Eliminar este servicio?</string>
+    <string name="servicios_borrar_cuerpo">Se va a eliminar “%1$s” del catálogo. Los turnos que ya lo tienen asignado no se modifican.</string>
+
+    <!-- Editor de servicio -->
+    <string name="servicio_dialogo_nuevo">Nuevo servicio</string>
+    <string name="servicio_dialogo_editar">Editar servicio</string>
+    <string name="servicio_nombre_label">Nombre</string>
+    <string name="servicio_nombre_error">Poné un nombre</string>
+    <string name="servicio_duracion_label">Duración en minutos</string>
+    <string name="servicio_duracion_error">La duración tiene que ser mayor a 0</string>
+    <string name="servicio_precio_label">Precio</string>
+    <string name="servicio_precio_error">El precio no puede ser negativo</string>
+    <string name="servicio_precio_ayuda">Dejalo vacío si el precio es “a consultar”</string>
+    <string name="servicio_precio_sin_definir">A consultar</string>
+    <string name="servicio_duracion_min">%1$d min</string>
+    <string name="servicio_color_label">Color en la agenda</string>
+    <string name="servicio_color_opcion">Tono %1$d</string>
+    <string name="servicio_color_seleccionado">Tono %1$d, seleccionado</string>
+    <string name="servicio_guardar">Guardar</string>
+    <string name="servicio_cancelar">Cancelar</string>
+    <string name="servicio_eliminar">Eliminar</string>
+
+    <!-- Errores -->
+    <string name="error_nombre_vacio">El nombre del servicio no puede estar vacío.</string>
+    <string name="error_duracion_invalida">La duración tiene que ser mayor a 0.</string>
+    <string name="error_precio_invalido">El precio no puede ser negativo.</string>
+    <string name="error_servicio_no_existe">Ese servicio ya no existe.</string>
+    <string name="error_generico">No se pudo completar la operación. Intentá de nuevo.</string>
 </resources>

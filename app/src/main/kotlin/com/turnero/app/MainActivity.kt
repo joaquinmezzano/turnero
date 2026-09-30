@@ -6,7 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import com.turnero.app.ui.navigation.TurneroNavGraph
 import com.turnero.app.ui.theme.TurneroTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -19,7 +19,9 @@ class MainActivity : ComponentActivity() {
         setContent {
             TurneroTheme {
                 Surface(color = MaterialTheme.colorScheme.background) {
-                    Text(text = "Turnero")
+                    // El `Text("Turnero")` hardcodeado era la excepcion temporal del
+                    // slice 0. A partir de aca la activity solo monta el grafo.
+                    TurneroNavGraph()
                 }
             }
         }

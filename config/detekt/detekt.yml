@@ -30,6 +30,10 @@ style:
     excludeCommentStatements: true
   UnusedPrivateMember:
     active: true
+    # detekt no ve al preview renderer de Android Studio: toda funcion @Preview
+    # privada la reporta como codigo muerto. La excepcion va aca y no haciendo las
+    # previews publicas, que filtrarian simbolos de UI al exterior.
+    ignoreAnnotated: [ 'Preview' ]
   ForbiddenComment:
     active: true
     comments:

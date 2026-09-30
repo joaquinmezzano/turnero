@@ -113,7 +113,7 @@ core/    transversales (datetime, intent, notification)
 
 - **PK = `UUID`**, generado en Kotlin, nunca autoincremental. Necesario para sync.
 - **Fechas:** `java.time` nativo (`Instant`, `LocalDate`, `LocalTime`, `ZoneId`). **No uses `kotlinx-datetime`** — `minSdk 26` ya trae `java.time`; la librería es redundante y agrega conversores.
-- **Type converters** en `data/local/Converters.kt`. Room NO soporta solos: `Instant`, `LocalTime`, `LocalDate`, `UUID`, `LocalDateTime`. Los enums sí.
+- **Type converters** en `data/local/Converters.kt`. Room NO soporta solos: `Instant`, `LocalTime`, `LocalDate`, `LocalDateTime`. Los enums sí, y **`UUID` también** (Room 2.8.5 lo persiste nativamente como BLOB de 16 bytes, confirmado en `app/schemas/`). Agregar un converter de `UUID` "por las dudas" cambia la afinidad de la columna, el `identityHash` del schema y vuelve obligatoria una migración sobre una base ya distribuida.
 - **`precio` de `Servicio` se guarda como `Long` centavos** (`precioCentavos`), no `BigDecimal`. SQLite no tiene tipo decimal y con `Long` el reporte de ingresos se resuelve con `SUM()` en SQL en vez de traer todas las filas a Kotlin.
 - **Zona horaria:** guardá `Instant`, convertí a la zona del dispositivo al renderizar. Los horarios de atención son `LocalTime` (hora local del profesional), no `Instant`.
 - **Nunca `Instant.now()` / `LocalDate.now()` en `domain` ni `data`.** Usá el `ClockProvider` inyectado (`core/datetime/ClockProvider.kt`). Es lo que hace testeable el modelo.
