@@ -5,6 +5,59 @@
     <string name="agenda_empty_title">Sin turnos para este día</string>
     <string name="agenda_empty_body">Tocá + para agregar el primer turno.</string>
 
+    <!-- Barra inferior. Son strings propios y no un reuso de los títulos de pantalla:
+         la etiqueta de una pestaña y el título de la pantalla son decisiones distintas
+         (la pestaña puede llamarse "Agenda" y la pantalla "Turnos de hoy"). -->
+    <string name="nav_clientes">Clientes</string>
+    <string name="nav_servicios">Servicios</string>
+
+    <!-- Listado de clientes -->
+    <string name="clientes_title">Clientes</string>
+    <string name="clientes_buscar_label">Buscar por nombre</string>
+    <string name="clientes_buscar_limpiar_desc">Limpiar la búsqueda</string>
+    <string name="clientes_sin_contacto">Sin contacto</string>
+    <string name="clientes_ver_ficha_desc">Ver la ficha de %1$s</string>
+    <string name="clientes_agregar_desc">Agregar cliente</string>
+    <string name="clientes_editar_desc">Editar %1$s</string>
+    <string name="clientes_eliminar_desc">Eliminar %1$s</string>
+    <string name="clientes_vacio_titulo">Todavía no cargaste clientes</string>
+    <string name="clientes_vacio_cuerpo">Cargá a tus clientes para poder agendarles un turno.</string>
+    <string name="clientes_vacio_accion">Agregar el primero</string>
+    <!-- La búsqueda sin resultados es un estado distinto de "no tenés clientes": el
+         primero se arregla dando de alta, el segundo escribiendo otra cosa. Decirle al
+         usuario "no tenés clientes" cuando tiene cuarenta es una afirmación falsa. -->
+    <string name="clientes_sin_resultados_titulo">Ningún cliente coincide</string>
+    <string name="clientes_sin_resultados_cuerpo">No encontramos clientes con «%1$s».</string>
+    <string name="clientes_error_carga">No se pudieron cargar tus clientes. Intentá de nuevo en un momento.</string>
+    <string name="clientes_borrar_titulo">¿Eliminar este cliente?</string>
+    <string name="clientes_borrar_cuerpo">Se va a eliminar “%1$s” de tu lista de clientes.</string>
+
+    <!-- Ficha de cliente -->
+    <string name="cliente_detalle_volver_desc">Volver a la lista de clientes</string>
+    <string name="cliente_detalle_telefono">Teléfono</string>
+    <string name="cliente_detalle_email">Email</string>
+    <string name="cliente_detalle_notas">Notas</string>
+    <string name="cliente_detalle_sin_contacto">Este cliente no tiene teléfono ni email cargados.</string>
+    <string name="cliente_detalle_sin_notas">Este cliente no tiene notas.</string>
+    <string name="cliente_detalle_editar_desc">Editar la ficha de %1$s</string>
+    <string name="cliente_detalle_eliminar_desc">Eliminar a %1$s</string>
+    <string name="cliente_detalle_error_carga">No se pudo cargar la ficha del cliente.</string>
+
+    <!-- Editor de cliente. "Guardar", "Cancelar", "Nombre" y "Poné un nombre" son los
+         mismos textos que usa el editor de servicio y se reusan a propósito: duplicar
+         "Guardar" con otro nombre es la forma más fácil de que los dos textos
+         terminen diciendo cosas distintas. -->
+    <string name="cliente_dialogo_nuevo">Nuevo cliente</string>
+    <string name="cliente_dialogo_editar">Editar cliente</string>
+    <string name="cliente_telefono_label">Teléfono</string>
+    <string name="cliente_telefono_error">Solo números, espacios y los signos + - ( )</string>
+    <string name="cliente_telefono_ayuda">Dejalo vacío si el cliente no tiene teléfono</string>
+    <string name="cliente_email_label">Email</string>
+    <string name="cliente_email_error">Revisá el email, no parece una dirección</string>
+    <string name="cliente_email_ayuda">Dejalo vacío si el cliente no tiene email</string>
+    <string name="cliente_notas_label">Notas</string>
+    <string name="cliente_notas_ayuda">Son notas privadas tuyas, el cliente no las ve.</string>
+
     <!-- Listado de servicios -->
     <string name="servicios_title">Servicios</string>
     <string name="servicios_agregar_desc">Agregar servicio</string>
@@ -14,6 +67,7 @@
     <string name="servicios_vacio_cuerpo">Cargá el catálogo para poder asignarle un servicio a cada turno.</string>
     <string name="servicios_vacio_accion">Agregar el primero</string>
     <string name="servicios_error_carga">No se pudieron cargar tus servicios. Intentá de nuevo en un momento.</string>
+    <string name="reintentar">Reintentar</string>
     <string name="servicios_borrar_titulo">¿Eliminar este servicio?</string>
     <string name="servicios_borrar_cuerpo">Se va a eliminar “%1$s” del catálogo. Los turnos que ya lo tienen asignado no se modifican.</string>
 
@@ -41,5 +95,9 @@
     <string name="error_duracion_invalida">La duración tiene que ser mayor a 0.</string>
     <string name="error_precio_invalido">El precio no puede ser negativo.</string>
     <string name="error_servicio_no_existe">Ese servicio ya no existe.</string>
+    <string name="error_cliente_nombre_vacio">El nombre del cliente no puede estar vacío.</string>
+    <string name="error_email_invalido">Ese email no parece una dirección válida.</string>
+    <string name="error_telefono_invalido">Ese teléfono no parece un número válido.</string>
+    <string name="error_cliente_no_existe">Ese cliente ya no existe.</string>
     <string name="error_generico">No se pudo completar la operación. Intentá de nuevo.</string>
 </resources>

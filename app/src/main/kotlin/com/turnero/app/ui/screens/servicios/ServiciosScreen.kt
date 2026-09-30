@@ -6,6 +6,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -54,6 +57,11 @@ import java.util.UUID
 /**
  * Pintor de la pantalla de servicios. Sin estado propio: recibe el `ServiciosUiState`
  * del ViewModel y callbacks. [ServiciosRoute] es quien los conecta.
+ *
+ * `contentWindowInsets = WindowInsets(0, 0, 0, 0)` desde el slice 2: los insets los
+ * consume el `Scaffold` de `TurneroNavGraph`, que es el que pinta la barra inferior. Sin
+ * esto, el inset de la barra de estado se contaría dos veces y el contenido quedaría
+ * debajo de ella.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -63,6 +71,7 @@ fun ServiciosScreen(
     onAgregar: () -> Unit,
     onEditar: (Servicio) -> Unit,
     onEliminar: (Servicio) -> Unit,
+    onReintentar: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
@@ -79,13 +88,15 @@ fun ServiciosScreen(
                 )
             }
         },
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
     ) { contentPadding ->
         when {
             uiState.cargando && uiState.servicios.isEmpty() -> EstadoCargando(contentPadding)
             // Un error de lectura con la lista vacia NO es "no tenes servicios": decirselo
             // al usuario es una afirmacion falsa. El snackbar explica el detalle y se
             // descarta solo, asi que el estado de pantalla tiene que decirlo tambien.
-            uiState.errorRes != null && uiState.servicios.isEmpty() -> EstadoError(contentPadding)
+            uiState.errorCargaRes != null && uiState.servicios.isEmpty() ->
+                EstadoError(contentPadding, onReintentar)
             uiState.servicios.isEmpty() -> EstadoVacio(contentPadding, onAgregar)
             else -> ListaServicios(
                 servicios = uiState.servicios,
@@ -98,7 +109,7 @@ fun ServiciosScreen(
 }
 
 @Composable
-private fun EstadoError(contentPadding: PaddingValues) {
+private fun EstadoError(contentPadding: PaddingValues, onReintentar: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -106,12 +117,20 @@ private fun EstadoError(contentPadding: PaddingValues) {
             .padding(horizontal = 32.dp),
         contentAlignment = Alignment.Center,
     ) {
-        Text(
-            text = stringResource(R.string.servicios_error_carga),
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.error,
-            textAlign = TextAlign.Center,
-        )
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                text = stringResource(R.string.servicios_error_carga),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.error,
+                textAlign = TextAlign.Center,
+            )
+            Spacer(Modifier.height(8.dp))
+            // El `catch` que llena este estado es terminal: sin este boton el error no
+            // tendria salida salvo matar la pantalla.
+            TextButton(onClick = onReintentar) {
+                Text(stringResource(R.string.reintentar))
+            }
+        }
     }
 }
 
@@ -311,6 +330,7 @@ private fun ServiciosScreenPreview() {
             onAgregar = {},
             onEditar = {},
             onEliminar = {},
+            onReintentar = {},
         )
     }
 }

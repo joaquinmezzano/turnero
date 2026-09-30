@@ -39,12 +39,21 @@ Ya está en `~/.bashrc.d/android.sh`. Shell nuevo → funciona solo.
 ./gradlew clean assembleDebug testDebugUnitTest detekt
 ```
 
-**Test o análisis puntual:**
+**Test puntual:**
 
 ```bash
 ./gradlew testDebugUnitTest --tests "com.turnero.app.domain.usecase.CrearTurnoUseCaseTest"
-./gradlew detekt --input app/src/main/kotlin/com/turnero/app/domain
 ```
+
+**Análisis puntual:** no existe. `./gradlew detekt --input` **no está declarado** por la
+tarea en detekt 1.23.8 y falla con `Unknown command-line option '--input'`, sea con
+espacio o con `=`. `:app:tasks --all` expone solo `detekt`, `detektBaseline` y
+`detektGenerateConfig`: **no hay forma de pasarle un subconjunto de rutas.**
+
+Correlé `./gradlew detekt` pelado sobre `src/main` + `src/test`. Es rápido (unos segundos
+en incremental) y filtrar a mano por path no vale el costo. Para silenciar un hallazgo
+pre-existente de a uno, el mecanismo correcto es `detektBaseline`, no excluir directorios
+de `source.setFrom`.
 
 `connectedDebugAndroidTest` cuesta ~10 min de boot de emulador. En CI corre **solo en `main`**, no en cada PR. No lo ejecutes salvo que el cambio toque Room/permisos/Compose UI.
 

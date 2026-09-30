@@ -43,6 +43,7 @@ fun ServiciosRoute(
     ServiciosScreen(
         uiState = uiState,
         snackbarHostState = snackbarHostState,
+        onReintentar = viewModel::reintentar,
         onAgregar = { dialogo = DialogoServicios.Editor(servicio = null) },
         onEditar = { dialogo = DialogoServicios.Editor(servicio = it) },
         onEliminar = { dialogo = DialogoServicios.Borrado(servicio = it) },

@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import com.turnero.app.data.local.TurneroDatabase
+import com.turnero.app.data.local.dao.ClienteDao
 import com.turnero.app.data.local.dao.ServicioDao
 import org.junit.rules.TestWatcher
 import org.junit.runner.Description
@@ -24,6 +25,8 @@ class InMemoryTurneroDatabaseRule : TestWatcher() {
     private lateinit var baseDeDatos: TurneroDatabase
 
     val dao: ServicioDao get() = baseDeDatos.servicioDao()
+
+    val clienteDao: ClienteDao get() = baseDeDatos.clienteDao()
 
     /** Acceso a la base cruda, para leer filas que el DAO esconde (p.ej. las borradas). */
     val db: TurneroDatabase get() = baseDeDatos

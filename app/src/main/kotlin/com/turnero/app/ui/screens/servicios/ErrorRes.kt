@@ -11,7 +11,7 @@ import com.turnero.app.domain.model.ErrorServicio
  * ViewModel tampoco deberia saber de textos, solo de identificadores.
  *
  * La rama `else` cubre los fallos de IO de Room, que no son `ErrorServicio` y llegan
- * como `SQLiteException` envueltos por `runCatching` en el repositorio.
+ * envueltos por `capturandoErrores` en el repositorio.
  */
 @StringRes
 fun Throwable.aErrorRes(): Int = when (this) {
