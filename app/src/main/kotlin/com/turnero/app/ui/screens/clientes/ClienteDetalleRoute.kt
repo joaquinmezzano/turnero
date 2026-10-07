@@ -27,6 +27,8 @@ import com.turnero.app.domain.model.Cliente
 @Composable
 fun ClienteDetalleRoute(
     onVolver: () -> Unit,
+    onCreateTurno: (java.util.UUID) -> Unit = {},
+    onAbrirTurno: (java.util.UUID) -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: ClienteDetalleViewModel = hiltViewModel(),
 ) {
@@ -60,6 +62,8 @@ fun ClienteDetalleRoute(
         onVolver = onVolver,
         onEditar = { dialogo = DialogoDetalle.Editor },
         onEliminar = { dialogo = DialogoDetalle.Borrado },
+        onCreateTurno = { uiState.cliente?.let { onCreateTurno(it.id) } },
+        onAbrirTurno = onAbrirTurno,
         modifier = modifier,
     )
 

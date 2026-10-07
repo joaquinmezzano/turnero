@@ -17,6 +17,7 @@ import androidx.navigation.compose.rememberNavController
 import com.turnero.app.ui.screens.clientes.ClienteDetalleRoute
 import com.turnero.app.ui.screens.clientes.ClientesRoute
 import com.turnero.app.ui.screens.servicios.ServiciosRoute
+import com.turnero.app.ui.screens.turnos.TurnosRoute
 
 /**
  * Grafo de navegación de la app.
@@ -54,24 +55,53 @@ fun TurneroNavGraph(navController: NavHostController = rememberNavController()) 
     ) { contentPadding ->
         NavHost(
             navController = navController,
-            startDestination = Clientes,
+            startDestination = Turnos,
             modifier = Modifier.padding(contentPadding),
         ) {
-            composable<Clientes> {
-                ClientesRoute(
-                    onAbrirFicha = { clienteId -> navController.navigate(ClienteDetalle(clienteId)) },
-                )
-            }
-            composable<ClienteDetalle> {
-                // El id viaja en el argumento de la ruta y lo lee el ViewModel del
-                // `SavedStateHandle`, que Hilt arma desde el `arguments` del
-                // `NavBackStackEntry`. Pasarlo además por parámetro sería la misma fuente
-                // de verdad leída de dos formas, con dos chances de que se desincronicen.
-                ClienteDetalleRoute(onVolver = { navController.popBackStack() })
-            }
-            composable<Servicios> {
-                ServiciosRoute()
-            }
+        composable<Turnos> {
+            TurnosRoute(
+                onAbrirServicios = { navController.navigate(Servicios) },
+                onAbrirTurnoDetalle = { turnoId -> navController.navigate(TurnoDetalle(turnoId)) },
+                onCrearTurno = { fecha, hora -> navController.navigate(TurnoEditor(fecha, hora)) },
+            )
+        }
+        composable<Clientes> {
+            ClientesRoute(
+                onAbrirFicha = { clienteId -> navController.navigate(ClienteDetalle(clienteId)) },
+            )
+        }
+        composable<ClienteDetalle> {
+            // El id viaja en el argumento de la ruta y lo lee el ViewModel del
+            // `SavedStateHandle`, que Hilt arma desde el `arguments` del
+            // `NavBackStackEntry`. Pasarlo además por parámetro sería la misma fuente
+            // de verdad leída de dos formas, con dos chances de que se desincronicen.
+            ClienteDetalleRoute(
+                onVolver = { navController.popBackStack() },
+                onCreateTurno = { clienteId ->
+                    navController.navigate(TurnoEditor(clienteId = clienteId))
+                },
+                onAbrirTurno = { turnoId ->
+                    navController.navigate(TurnoDetalle(turnoId))
+                },
+            )
+        }
+        composable<Servicios> {
+            ServiciosRoute()
+        }
+        composable<TurnoDetalle> {
+            com.turnero.app.ui.screens.turnos.TurnoDetalleRoute(
+                onVolver = { navController.popBackStack() },
+                onEditar = { turnoId ->
+                    navController.navigate(TurnoEditor(turnoId = turnoId))
+                },
+            )
+        }
+        composable<TurnoEditor> {
+            com.turnero.app.ui.screens.turnos.TurnoEditorRoute(
+                onVolver = { navController.popBackStack() },
+                onGuardado = { navController.popBackStack() },
+            )
+        }
         }
     }
 }

@@ -5,11 +5,9 @@
     <string name="agenda_empty_title">Sin turnos para este día</string>
     <string name="agenda_empty_body">Tocá + para agregar el primer turno.</string>
 
-    <!-- Barra inferior. Son strings propios y no un reuso de los títulos de pantalla:
-         la etiqueta de una pestaña y el título de la pantalla son decisiones distintas
-         (la pestaña puede llamarse "Agenda" y la pantalla "Turnos de hoy"). -->
+    <!-- Barra inferior. -->
+    <string name="nav_turnos">Turnos</string>
     <string name="nav_clientes">Clientes</string>
-    <string name="nav_servicios">Servicios</string>
 
     <!-- Listado de clientes -->
     <string name="clientes_title">Clientes</string>
@@ -100,4 +98,79 @@
     <string name="error_telefono_invalido">Ese teléfono no parece un número válido.</string>
     <string name="error_cliente_no_existe">Ese cliente ya no existe.</string>
     <string name="error_generico">No se pudo completar la operación. Intentá de nuevo.</string>
+    <string name="turnos_error_carga">No se pudieron cargar los turnos. Intentá de nuevo en un momento.</string>
+
+    <!-- Turnos -->
+    <string name="turnos_anterior_desc">Día anterior</string>
+    <string name="turnos_siguiente_desc">Día siguiente</string>
+    <string name="turnos_menu_desc">Más opciones</string>
+    <string name="turnos_menu_servicios">Servicios</string>
+    <string name="turnos_hora_libre">%1$s</string>
+    <!-- Hora real de inicio y fin (inicio + duración), no la hora de la fila: un turno
+         de 90 min que arranca a las 10:00 termina a las 11:30. -->
+    <string name="turnos_turno_ocupado">%1$s–%2$s · %3$s</string>
+    <!-- Servicio y estado en la segunda línea del chip: con dos turnos en la misma
+         hora es lo único que distingue uno del otro. -->
+    <string name="turnos_turno_servicio_estado">%1$s · %2$s</string>
+    <string name="turnos_celda_libre_desc">Crear turno a las %1$s</string>
+    <string name="turnos_celda_ocupada_desc">Ver turno de %1$s, %2$s</string>
+    <string name="turnos_detalle_titulo">Turno</string>
+    <string name="turnos_detalle_volver_desc">Volver a turnos</string>
+    <string name="turnos_detalle_editar_desc">Editar turno</string>
+    <string name="turnos_detalle_estado">Estado: %1$s</string>
+    <string name="turnos_detalle_servicio">Servicio: %1$s</string>
+    <string name="turnos_detalle_fecha">Fecha: %1$s</string>
+    <string name="turnos_detalle_hora">Hora: %1$s</string>
+    <string name="turnos_detalle_duracion">Duración: %1$d min</string>
+    <string name="turnos_detalle_notas">Notas: %1$s</string>
+    <string name="turnos_detalle_sin_notas">Sin notas</string>
+    <string name="turnos_editor_nuevo">Nuevo turno</string>
+    <string name="turnos_editor_editar">Editar turno</string>
+    <string name="turnos_editor_cliente">Cliente</string>
+    <string name="turnos_editor_servicio">Servicio</string>
+    <string name="turnos_editor_notas">Notas</string>
+    <string name="turnos_editor_hora">Hora</string>
+    <string name="turnos_editor_guardar">Guardar</string>
+    <string name="turnos_editor_volver_desc">Volver</string>
+    <string name="turnos_editor_seleccionar_cliente">Elegí un cliente</string>
+    <string name="turnos_editor_seleccionar_servicio">Elegí un servicio</string>
+
+    <!-- Errores de turno -->
+    <string name="error_turno_sin_servicio">Ese servicio ya no existe</string>
+    <string name="error_turno_sin_cliente">Ese cliente ya no existe</string>
+    <string name="error_turno_solapamiento">Ese horario ya está ocupado</string>
+    <string name="error_turno_en_el_pasado">No se puede agendar en el pasado</string>
+    <string name="error_turno_fuera_de_ventana">El horario tiene que estar entre las 08:00 y las 22:00</string>
+    <string name="error_turno_transicion_invalida">Esa acción ya no se puede hacer</string>
+    <string name="error_turno_no_existe">Ese turno ya no existe</string>
+
+    <!-- Ficha del cliente: estadisticas e historial -->
+    <string name="cliente_estadisticas_titulo">Estadísticas</string>
+    <string name="cliente_estadisticas_pendientes">Pendientes: %1$d</string>
+    <string name="cliente_estadisticas_confirmados">Confirmados: %1$d</string>
+    <string name="cliente_estadisticas_atendidos">Atendidos: %1$d</string>
+    <string name="cliente_estadisticas_ausentes">Ausentes: %1$d</string>
+    <string name="cliente_estadisticas_cancelados">Cancelados: %1$d</string>
+    <string name="cliente_estadisticas_ultima_visita">Última visita: %1$s (%2$s · %3$s)</string>
+    <string name="cliente_estadisticas_sin_visitas">Todavía no tuvo turnos</string>
+    <string name="cliente_historial_titulo">Historial de turnos</string>
+    <string name="cliente_historial_vacio">Sin turnos</string>
+    <!-- El servicio puede haber sido dado de baja y aun asi se muestra: el nombre sale del
+         JOIN del historial, no del catalogo vivo (ver TurnoConServicio). -->
+    <string name="cliente_historial_fila">%1$s %2$s · %3$s</string>
+
+    <string name="turnos_accion_confirmar">Confirmar</string>
+    <string name="turnos_accion_atendido">Marcar como atendido</string>
+    <string name="turnos_accion_ausente">Marcar como ausente</string>
+    <string name="turnos_accion_cancelar">Cancelar</string>
+    <string name="turnos_accion_volver_pendiente">Volver a pendiente</string>
+    <string name="turnos_accion_liberar">Liberar horario</string>
+
+    <string name="estado_turno_pendiente">Pendiente</string>
+    <string name="estado_turno_confirmado">Confirmado</string>
+    <string name="estado_turno_atendido">Atendido</string>
+    <string name="estado_turno_ausente">Ausente</string>
+    <string name="estado_turno_cancelado">Cancelado</string>
+
+    <string name="cliente_detalle_crear_turno">Agendar turno</string>
 </resources>

@@ -11,12 +11,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -39,7 +41,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.turnero.app.R
 import com.turnero.app.domain.model.Cliente
+import com.turnero.app.domain.model.EstadisticasCliente
+import com.turnero.app.domain.model.TurnoConServicio
 import com.turnero.app.ui.theme.TurneroTheme
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.time.Instant
 import java.util.UUID
 
@@ -58,6 +64,8 @@ fun ClienteDetalleScreen(
     onVolver: () -> Unit,
     onEditar: () -> Unit,
     onEliminar: () -> Unit,
+    onCreateTurno: () -> Unit = {},
+    onAbrirTurno: (java.util.UUID) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val cliente = uiState.cliente
@@ -121,7 +129,14 @@ fun ClienteDetalleScreen(
                 contentPadding = contentPadding,
             )
 
-            else -> FichaCliente(cliente = cliente, contentPadding = contentPadding)
+            else -> FichaCliente(
+                cliente = cliente,
+                turnos = uiState.turnos,
+                estadisticas = uiState.estadisticas,
+                onCreateTurno = onCreateTurno,
+                onAbrirTurno = onAbrirTurno,
+                contentPadding = contentPadding,
+            )
         }
     }
 }
@@ -156,8 +171,16 @@ private fun EstadoError(@StringRes mensaje: Int, contentPadding: PaddingValues) 
     }
 }
 
+
 @Composable
-private fun FichaCliente(cliente: Cliente, contentPadding: PaddingValues) {
+private fun FichaCliente(
+    cliente: Cliente,
+    turnos: List<TurnoConServicio>,
+    estadisticas: EstadisticasCliente?,
+    onCreateTurno: () -> Unit,
+    onAbrirTurno: (java.util.UUID) -> Unit,
+    contentPadding: PaddingValues,
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -194,14 +217,93 @@ private fun FichaCliente(cliente: Cliente, contentPadding: PaddingValues) {
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
 
-        // El historial de turnos vive acá arriba, después de las notas, y **no existe
-        // todavía**: es del slice 3, que es el que define `Turno` y su relación con el
-        // cliente. No se deja un separador ni un "próximamente": una sección vacía le dice
-        // al usuario que le falta algo que la app nunca promete.
+        Button(onClick = onCreateTurno, modifier = Modifier.fillMaxWidth()) {
+            Text(stringResource(R.string.cliente_detalle_crear_turno))
+        }
+
+        estadisticas?.let { EstadisticasCard(it) }
+        HistorialTurnos(turnos, onAbrirTurno = onAbrirTurno)
     }
 }
 
-/** Una fila etiqueta / valor. */
+@Composable
+private fun EstadisticasCard(stats: EstadisticasCliente) {
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(text = stringResource(R.string.cliente_estadisticas_titulo), style = MaterialTheme.typography.titleMedium)
+            Text(text = stringResource(R.string.cliente_estadisticas_pendientes, stats.pendientes))
+            Text(text = stringResource(R.string.cliente_estadisticas_confirmados, stats.confirmados))
+            Text(text = stringResource(R.string.cliente_estadisticas_atendidos, stats.atendidos))
+            Text(text = stringResource(R.string.cliente_estadisticas_ausentes, stats.ausentes))
+            Text(text = stringResource(R.string.cliente_estadisticas_cancelados, stats.cancelados))
+            stats.ultimaVisita?.let { ultima ->
+                val fecha = ultima.inicio.atZone(ZoneId.systemDefault()).toLocalDate()
+                    .format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                Text(
+                    text = stringResource(
+                        R.string.cliente_estadisticas_ultima_visita,
+                        fecha,
+                        ultima.servicioNombre,
+                        stringResource(ultima.estado.aNombreEstado()),
+                    ),
+                )
+            } ?: Text(
+                text = stringResource(R.string.cliente_estadisticas_sin_visitas),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+}
+
+@Composable
+private fun HistorialTurnos(
+    turnos: List<TurnoConServicio>,
+    onAbrirTurno: (java.util.UUID) -> Unit,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(text = stringResource(R.string.cliente_historial_titulo), style = MaterialTheme.typography.titleMedium)
+        if (turnos.isEmpty()) {
+            Text(
+                text = stringResource(R.string.cliente_historial_vacio),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        } else {
+            turnos.forEach { conServicio ->
+                val turno = conServicio.turno
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onAbrirTurno(turno.id) },
+                ) {
+                    Column(modifier = Modifier.padding(12.dp)) {
+                        val fecha = turno.inicio.atZone(ZoneId.systemDefault())
+                        Text(
+                            text = stringResource(
+                                R.string.cliente_historial_fila,
+                                fecha.toLocalDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                                fecha.toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm")),
+                                // Sale del JOIN del historial y no del catalogo vivo, para
+                                // que siga visible aunque el servicio este dado de baja.
+                                conServicio.servicioNombre,
+                            ),
+                        )
+                        Text(text = stringResource(turno.estado.aNombreEstado()))
+                    }
+                }
+            }
+        }
+    }
+}
+
+@androidx.annotation.StringRes
+private fun com.turnero.app.domain.model.EstadoTurno.aNombreEstado(): Int = when (this) {
+    com.turnero.app.domain.model.EstadoTurno.PENDIENTE -> R.string.estado_turno_pendiente
+    com.turnero.app.domain.model.EstadoTurno.CONFIRMADO -> R.string.estado_turno_confirmado
+    com.turnero.app.domain.model.EstadoTurno.ATENDIDO -> R.string.estado_turno_atendido
+    com.turnero.app.domain.model.EstadoTurno.AUSENTE -> R.string.estado_turno_ausente
+    com.turnero.app.domain.model.EstadoTurno.CANCELADO -> R.string.estado_turno_cancelado
+}
 @Composable
 private fun DatoCliente(@StringRes etiqueta: Int, valor: String) {
     Row(

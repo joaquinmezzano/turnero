@@ -3,14 +3,19 @@ package com.turnero.app.ui.screens.clientes
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.turnero.app.R
+import com.turnero.app.domain.model.EstadisticasCliente
 import com.turnero.app.domain.usecase.ActualizarClienteUseCase
 import com.turnero.app.domain.usecase.EliminarClienteUseCase
 import com.turnero.app.domain.usecase.ObtenerClientePorIdUseCase
+import com.turnero.app.domain.usecase.ObtenerEstadisticasClienteUseCase
+import com.turnero.app.domain.usecase.ObtenerTurnosDeClienteUseCase
 import com.turnero.app.testing.FakeClockProvider
 import com.turnero.app.testing.FakeClienteRepository
+import com.turnero.app.testing.FakeTurnoRepository
 import com.turnero.app.testing.INSTANTE_BASE
 import com.turnero.app.testing.MainDispatcherRule
 import com.turnero.app.testing.cliente
+import com.turnero.app.testing.turno
 import com.turnero.app.ui.navigation.ClienteDetalle
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -68,15 +73,64 @@ class ClienteDetalleViewModelTest {
     private val id = UUID.fromString("c3e5f7a9-4b6c-4d8e-9fa0-1b2c3d4e5f03")
 
     private lateinit var repositorio: FakeClienteRepository
+    private lateinit var turnos: FakeTurnoRepository
     private lateinit var reloj: FakeClockProvider
 
     @BeforeEach
     fun crearFakes() {
         repositorio = FakeClienteRepository()
+        turnos = FakeTurnoRepository()
         reloj = FakeClockProvider()
     }
 
     // ------------------------------------------------------------ estado inicial
+
+    // ------------------------------------------------------------ historial y estadisticas
+
+    @Test
+    fun `carga el historial de turnos y las estadisticas del cliente`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val ana = cliente(id = id, nombre = "Pérez, Ana")
+            repositorio.guardar(ana)
+            val turnoId = UUID.randomUUID()
+            turnos.guardar(turno(id = turnoId, clienteId = id, inicio = INSTANTE_BASE))
+            // Emite por el canal de turnos y de estadisticas: el ViewModel los combina.
+            turnos.emitirDeCliente(listOf(turno(id = turnoId, clienteId = id, inicio = INSTANTE_BASE)))
+            turnos.emitirEstadisticas(EstadisticasCliente(pendientes = 1, confirmados = 0, atendidos = 0, ausentes = 0, cancelados = 0, ultimaVisita = null))
+
+            val viewModel = fichaDe()
+            advanceUntilIdle()
+
+            viewModel.uiState.test {
+                val cargado = awaitItem()
+                assertEquals(1, cargado.turnos.size)
+                assertEquals(1, cargado.estadisticas?.pendientes)
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+    @Test
+    fun `el historial trae el nombre del servicio desde la proyeccion`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            repositorio.guardar(cliente(id = id, nombre = "Pérez, Ana"))
+            val turnoId = UUID.randomUUID()
+            val corteId = UUID.randomUUID()
+            // El falso responde la proyección del JOIN tal cual el repositorio real (que no
+            // filtra servicios.deletedAt): el historial muestra el nombre aunque el servicio
+            // esté dado de baja. El JOIN de verdad se prueba contra Room en `TurnoDaoTest`.
+            turnos.proyectarServicio(servicioId = corteId, nombre = "Corte")
+            turnos.guardar(turno(id = turnoId, clienteId = id, servicioId = corteId, inicio = INSTANTE_BASE))
+            turnos.emitirDeCliente(listOf(turno(id = turnoId, clienteId = id, servicioId = corteId, inicio = INSTANTE_BASE)))
+            turnos.emitirEstadisticas(EstadisticasCliente(pendientes = 0, confirmados = 0, atendidos = 0, ausentes = 0, cancelados = 0, ultimaVisita = null))
+
+            val viewModel = fichaDe()
+            advanceUntilIdle()
+
+            assertEquals(
+                "Corte",
+                viewModel.uiState.value.turnos.single().servicioNombre,
+            )
+        }
 
     @Test
     fun `el estado inicial viene cargando y sin cliente`() {
@@ -296,8 +350,6 @@ class ClienteDetalleViewModelTest {
             assertNull(viewModel.uiState.value.errorRes)
         }
 
-    // ------------------------------------------------------------ argumento de la ruta
-
     @Test
     fun `el argumento de la ruta se llama como el campo del modelo`() {
         // La clave no la elige la app: `navigation` la saca de
@@ -317,6 +369,8 @@ class ClienteDetalleViewModelTest {
                 obtenerClientePorId = ObtenerClientePorIdUseCase(repositorio),
                 actualizarCliente = ActualizarClienteUseCase(repositorio, reloj),
                 eliminarCliente = EliminarClienteUseCase(repositorio, reloj),
+                obtenerTurnosDeCliente = ObtenerTurnosDeClienteUseCase(turnos),
+                obtenerEstadisticasCliente = ObtenerEstadisticasClienteUseCase(turnos),
                 estadoGuardado = SavedStateHandle(emptyMap<String, Any?>()),
             )
         }
@@ -339,6 +393,8 @@ class ClienteDetalleViewModelTest {
         obtenerClientePorId = ObtenerClientePorIdUseCase(repositorio),
         actualizarCliente = ActualizarClienteUseCase(repositorio, reloj),
         eliminarCliente = EliminarClienteUseCase(repositorio, reloj),
+        obtenerTurnosDeCliente = ObtenerTurnosDeClienteUseCase(turnos),
+        obtenerEstadisticasCliente = ObtenerEstadisticasClienteUseCase(turnos),
         estadoGuardado = estadoGuardadoDe(clienteId),
     )
 

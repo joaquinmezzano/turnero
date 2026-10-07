@@ -2,8 +2,10 @@ package com.turnero.app.di
 
 import com.turnero.app.data.repository.ClienteRepositoryImpl
 import com.turnero.app.data.repository.ServicioRepositoryImpl
+import com.turnero.app.data.repository.TurnoRepositoryImpl
 import com.turnero.app.domain.repository.ClienteRepository
 import com.turnero.app.domain.repository.ServicioRepository
+import com.turnero.app.domain.repository.TurnoRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -25,4 +27,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindServicioRepository(impl: ServicioRepositoryImpl): ServicioRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindTurnoRepository(impl: TurnoRepositoryImpl): TurnoRepository
 }

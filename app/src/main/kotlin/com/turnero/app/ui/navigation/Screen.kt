@@ -1,6 +1,8 @@
 package com.turnero.app.ui.navigation
 
 import kotlinx.serialization.Serializable
+import java.time.LocalDate
+import java.time.LocalTime
 import java.util.UUID
 
 /**
@@ -15,8 +17,13 @@ import java.util.UUID
 sealed interface Screen
 
 /**
- * Listado de clientes. Es el destino de arranque desde el slice 2, porque es el que
- * existe de punta a punta sin depender de turnos.
+ * Hub de turnos. Es el destino de arranque a partir del Slice 3.
+ */
+@Serializable
+data object Turnos : Screen
+
+/**
+ * Listado de clientes.
  */
 @Serializable
 data object Clientes : Screen
@@ -41,6 +48,35 @@ data class ClienteDetalle(
     val clienteId: UUID,
 ) : Screen
 
-/** Catálogo de servicios. */
+/** Detalle de un turno. */
+@Serializable
+data class TurnoDetalle(
+    @Serializable(with = UuidSerializer::class)
+    val turnoId: UUID,
+) : Screen
+
+/**
+ * Editor de turno (alta y edición).
+ *
+ * Entradas según de dónde venga:
+ * - Desde la grilla de turnos: `fecha` y `hora` fijadas por el tap; se elige cliente y
+ *   servicio.
+ * - Desde la ficha del cliente: `clienteId` fijado; se elige día, hora y servicio.
+ * - Desde el detalle de un turno: `turnoId`; la pantalla precarga y permite editar los
+ *   datos (la hora siempre anclada a la hora exacta, 08:00–22:00).
+ */
+@Serializable
+data class TurnoEditor(
+    @Serializable(with = LocalDateSerializer::class)
+    val fecha: LocalDate? = null,
+    @Serializable(with = LocalTimeSerializer::class)
+    val hora: LocalTime? = null,
+    @Serializable(with = UuidSerializer::class)
+    val clienteId: UUID? = null,
+    @Serializable(with = UuidSerializer::class)
+    val turnoId: UUID? = null,
+) : Screen
+
+/** Catálogo de servicios. Se accede desde el overflow del top bar de Turnos. */
 @Serializable
 data object Servicios : Screen

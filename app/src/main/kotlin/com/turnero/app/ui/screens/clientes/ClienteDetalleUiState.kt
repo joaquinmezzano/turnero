@@ -2,16 +2,17 @@ package com.turnero.app.ui.screens.clientes
 
 import androidx.annotation.StringRes
 import com.turnero.app.domain.model.Cliente
+import com.turnero.app.domain.model.EstadisticasCliente
+import com.turnero.app.domain.model.TurnoConServicio
 
-/**
- * Estado de la ficha de un cliente.
- *
- * `cargando` y `cliente` son separados a propósito: "todavía no lo leí" y "lo leí y no
- * está" son pantallas distintas. Con un solo `cliente: Cliente?` no se podría distinguir
- * el instante de carga del cliente ya eliminado, y mostraría el mensaje equivocado.
- */
 data class ClienteDetalleUiState(
     val cliente: Cliente? = null,
+    /**
+     * Historial con el nombre del servicio resuelto por `JOIN` (ver [TurnoConServicio]): la
+     * ficha lo muestra aunque el servicio ya haya sido dado de baja.
+     */
+    val turnos: List<TurnoConServicio> = emptyList(),
+    val estadisticas: EstadisticasCliente? = null,
     val cargando: Boolean = true,
     @StringRes val errorRes: Int? = null,
 )

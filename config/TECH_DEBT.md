@@ -332,6 +332,59 @@ un `values-es/` de prueba no compra nada.
 
 ## Slice 3+ — `Turnos`
 
+### `idx_turnos_vivos_inicio` no es parcial
+
+**Qué.** El diseño pide `CREATE INDEX idx_turnos_vivos_inicio ON turnos(inicio) WHERE
+deletedAt IS NULL` y el índice que existe es **sin el `WHERE`**. Está declarado con
+`@Index` en `TurnoEntity` y queda así en `3.json`:
+
+```sql
+CREATE INDEX IF NOT EXISTS idx_turnos_vivos_inicio ON turnos (inicio)
+```
+
+El nombre promete "vivos" y no lo entrega.
+
+**Por qué se puede postergar.** El `@Index` de Room 2.8.5 sólo admite `value`, `orders`,
+`name` y `unique`; no hay ninguna cláusula para un índice parcial. Y un índice completo
+**sigue siendo correcto**: incluye las filas borradas, pero la query igual filtra
+`deletedAt IS NULL` después de usar el índice, así que devuelve lo mismo. Se paga sólo en
+tamaño — filas muertas que no van a ninguna parte.
+
+**La trampa.** Para materializarlo de verdad hay que salirse del `@Index`: o SQL crudo en
+un callback/migración, o un `@Query` de DDL. Eso lo saca del schema JSON exportado, así que
+deja de aparecer en `3.json` y hay que verificarlo aparte.
+
+**Disparador.** El histórico de turnos crece (acumular meses de soft-deleted), o alguien
+reevaluando índices del slice. Si se implementa, borrar esta entrada.
+
+---
+
+### Reabrir un `CANCELADO` y su ventana de carrera
+
+**Qué.** El chequeo de solapamiento se corre al `crear` y al `actualizar`, pero un turno en
+`CANCELADO` no bloquea su franja: mientras estuvo cancelado, otro turno pudo tomar su hora.
+`TurnoRepositoryImpl.cambiarEstado` ya vuelve a chequear cuando la transición hace que el
+turno vuelva a bloquear (de `CANCELADO`/`AUSENTE` a `PENDIENTE`/`CONFIRMADO`), pero el
+mismo hueco existe en dos variantes todavía:
+
+1. **Editar la hora de un `CANCELADO` a una franja ocupada.** `actualizar` chequea contra
+   los estados que *bloquean*, y como el turno editado no bloquea y se excluye a sí mismo,
+   el chequeo pasa: la edición entra, y recién al revivirlo el choque se haría visible.
+2. **La reversión sigue dos pasos por fuera de la transacción si algún día se delega a la
+   UI** (leer el turno, decidir, escribir).
+
+**Por qué se puede postergar.** Los caminos están cerrados en el repositorio, que es donde
+vive la atomicidad. No hay forma de llegar a dos turnos solapados sin pasar por la
+transacción que lo impide.
+
+**La trampa.** Cualquier camino nuevo que escriba `estado` o `inicio` sin pasar por
+`TurnoRepositoryImpl` reintroduce el problema sin ruido: no crashea, sólo se ven dos turnos
+en la misma hora en la grilla.
+
+**Disparador.** Aparecer un tercer escritor de turnos (sync, import, migración), o sumar la
+edición de un `CANCELADO` como caso de uso visible en la UI.
+
+---
 ### `Turno.duracionMin` ya está prometido en la UI
 
 **Qué.** `strings.xml` ya le dice al usuario, al confirmar una baja: *"Los turnos que ya lo
@@ -344,3 +397,69 @@ ni por cascade, ni "actualizando la duración", ni reescribiendo snapshots. Y
 
 Si alguien lo convierte en relación, ese string pasa a ser mentira y los turnos agendados
 se mueven solos.
+
+---
+
+### `"dd/MM/yyyy"` y `"HH:mm"` hardcodeados en la capa de UI
+
+**Qué.** `DateTimeFormatter.ofPattern("dd/MM/yyyy")` y `ofPattern("HH:mm")` viven sueltos en
+`TurnosScreen.kt` y `TurnoDetalleScreen.kt` (el mismo patrón ya existía en
+`ClientesScreen.kt` y `ClienteDetalleScreen.kt`). El separador y el orden de la fecha son
+detalles de locale: en `en-US` lo correcto es `MM/dd/yyyy`, y hay locales donde el separador
+no es `/`.
+
+**Por qué se puede postergar.** El MVP es rioplatense (mismo criterio que el ítem de
+`aTextoPrecio` en Slice 1): `dd/MM/yyyy` y `HH:mm` son correctos para es-AR/es-ES. La Fase 3
+promete localización y ahí se centralizan los patrones junto con las traducciones.
+
+**Cuidado.** `res/values/strings.xml` no formatea fechas: no alcanza con externalizar el
+patrón como string. Hay que ir por `java.text.DateFormat` con el locale del device, o por
+patrones de fecha vía `android.text.format.DateFormat`. Y el formateo queda en `ui/`, no
+en `domain` ni `data`: es presentación.
+
+**Disparador.** La primera traducción (Fase 3), o el primer device fuera de es-AR/es-ES.
+
+---
+
+### El nombre histórico del servicio se resuelve con `INNER JOIN` y no hay FK
+
+**Qué.** La agenda, el historial y la ficha resuelven `servicioNombre`/`servicioColor` con un
+`INNER JOIN servicios` que a propósito **no** filtra `servicios.deletedAt` (el nombre de un
+turno es un hecho histórico). Pero `TurnoEntity` **no declara `foreignKeys`** y el schema
+exportado tampoco las tiene: nada garantiza que `turno.servicioId` resuelva a una fila de
+`servicios`.
+
+**La trampa.** Hoy no es alcanzable: el único borrado de servicios es soft, así que la fila
+siempre existe. El día que aparezca un `servicioId` colgado —una importación, un sync, una
+baja dura futura—, el `INNER JOIN` **esconde el turno** de la grilla, del historial y de la
+ficha, mientras que `obtenerQueSolapan` (sin JOIN) **sigue bloqueando esa hora** y
+`observarConteosPorEstado` (sin JOIN) **lo sigue contando** en las estadísticas. Resultado:
+una hora que se ve libre, no se puede reservar, y un historial que no cierra.
+
+`servicioColor` es `Int?` justamente por ese caso, pero `servicioNombre` es `String` no-null:
+con `INNER JOIN` la rama nula es inalcanzable, así que la nulabilidad está a medias.
+
+**Por qué se puede postergar.** No hay forma de generar un `servicioId` colgado con el código
+actual; requiere un escritor nuevo (sync/import) o cambiar el borrado de servicios.
+
+**Disparador.** El primer import/sync de turnos, o cualquier baja dura de `Servicio`. El fix
+natural es `LEFT JOIN` + `servicioNombre: String?` + un fallback en la UI ("Servicio
+eliminado"), y declarar la FK para tener una invariante en vez de una convención.
+
+---
+
+### Queries de agenda/historial sin servicio quedaron muertas en producción
+
+**Qué.** `TurnoDao.observarDelDia` y `TurnoDao.observarDeCliente` (las que devuelven
+`TurnoEntity` sin el `JOIN`) ya no las llama el repositorio: la agenda y el historial usan las
+variantes `...ConServicio`. Sólo las usan los tests instrumentados.
+
+**Por qué se puede postergar.** Compilan y no rompen nada; son el camino viejo, que ya no está
+enchufado.
+
+**Cuidado.** Dejarlas invita a que un cambio futuro en `data/` las tome y reintroduzca una
+agenda sin `servicioNombre`, que es exactamente el bug que la proyección vino a arreglar.
+
+**Disparador.** La próxima vez que se toque `TurnoDao` o su repositorio: borrarlas y migrar sus
+tests a las variantes con servicio, o marcarlas explícitamente como "sólo para tests que no
+proyectan".

@@ -6,6 +6,7 @@ import androidx.test.core.app.ApplicationProvider
 import com.turnero.app.data.local.TurneroDatabase
 import com.turnero.app.data.local.dao.ClienteDao
 import com.turnero.app.data.local.dao.ServicioDao
+import com.turnero.app.data.local.dao.TurnoDao
 import org.junit.rules.TestWatcher
 import org.junit.runner.Description
 
@@ -27,6 +28,8 @@ class InMemoryTurneroDatabaseRule : TestWatcher() {
     val dao: ServicioDao get() = baseDeDatos.servicioDao()
 
     val clienteDao: ClienteDao get() = baseDeDatos.clienteDao()
+
+    val turnoDao: TurnoDao get() = baseDeDatos.turnoDao()
 
     /** Acceso a la base cruda, para leer filas que el DAO esconde (p.ej. las borradas). */
     val db: TurneroDatabase get() = baseDeDatos

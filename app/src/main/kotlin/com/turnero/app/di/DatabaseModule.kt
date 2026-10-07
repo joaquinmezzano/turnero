@@ -5,6 +5,7 @@ import androidx.room.Room
 import com.turnero.app.data.local.TurneroDatabase
 import com.turnero.app.data.local.dao.ClienteDao
 import com.turnero.app.data.local.dao.ServicioDao
+import com.turnero.app.data.local.dao.TurnoDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -17,7 +18,7 @@ import javax.inject.Singleton
 object DatabaseModule {
 
     /**
-     * Sin `fallbackToDestructiveMigration()`, a propósito, y la versión 2 lo confirma.
+     * Sin `fallbackToDestructiveMigration()`, a propósito, y la versión 3 lo confirma.
      *
      * Con la opción, Room borra la base entera y la vuelve a crear cuando no encuentra
      * una `Migration` que sepa llevar de la versión instalada a la del código. Para una
@@ -26,10 +27,10 @@ object DatabaseModule {
      * desarrollo, y un crash se arregla; una base vacía se reporta como "la app me borró
      * todo".
      *
-     * La versión 1 → 2 no lleva `Migration` a propósito, y acá está el porqué: la v1 nunca
-     * salió a un dispositivo (ver el KDoc de `TurneroDatabase`). El día que se publique la
-     * primera versión real, este mismo punto es el que tiene que recibir la `Migration`
-     * correspondiente, escrita contra el `2.json` de `app/schemas/`.
+     * La versión 2 → 3 no lleva `Migration` a propósito, y acá está el porqué: ni la v1 ni
+     * la v2 salieron a un dispositivo (ver el KDoc de `TurneroDatabase`). El día que se
+     * publique la primera versión real, este mismo punto es el que tiene que recibir la
+     * `Migration` correspondiente, escrita contra el `3.json` de `app/schemas/`.
      */
     @Provides
     @Singleton
@@ -41,4 +42,7 @@ object DatabaseModule {
 
     @Provides
     fun provideServicioDao(database: TurneroDatabase): ServicioDao = database.servicioDao()
+
+    @Provides
+    fun provideTurnoDao(database: TurneroDatabase): TurnoDao = database.turnoDao()
 }

@@ -1,8 +1,8 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 2,
-    "identityHash": "e725a409a9eecf90a8370e6bbc276f25",
+    "version": 3,
+    "identityHash": "1ea811630bd9f55f3d717cd1baa832f9",
     "entities": [
       {
         "tableName": "clientes",
@@ -117,11 +117,92 @@
             "id"
           ]
         }
+      },
+      {
+        "tableName": "turnos",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` BLOB NOT NULL, `clienteId` BLOB NOT NULL, `servicioId` BLOB NOT NULL, `inicio` INTEGER NOT NULL, `duracionMin` INTEGER NOT NULL, `estado` TEXT NOT NULL, `notas` TEXT, `createdAt` INTEGER NOT NULL, `updatedAt` INTEGER NOT NULL, `deletedAt` INTEGER, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "clienteId",
+            "columnName": "clienteId",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "servicioId",
+            "columnName": "servicioId",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "inicio",
+            "columnName": "inicio",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "duracionMin",
+            "columnName": "duracionMin",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "estado",
+            "columnName": "estado",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "notas",
+            "columnName": "notas",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updatedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deletedAt",
+            "columnName": "deletedAt",
+            "affinity": "INTEGER"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "idx_turnos_vivos_inicio",
+            "unique": false,
+            "columnNames": [
+              "inicio"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `idx_turnos_vivos_inicio` ON `${TABLE_NAME}` (`inicio`)"
+          }
+        ]
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e725a409a9eecf90a8370e6bbc276f25')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '1ea811630bd9f55f3d717cd1baa832f9')"
     ]
   }
 }

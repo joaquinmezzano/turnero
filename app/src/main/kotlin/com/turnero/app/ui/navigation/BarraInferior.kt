@@ -2,8 +2,8 @@ package com.turnero.app.ui.navigation
 
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Groups
-import androidx.compose.material.icons.filled.Spa
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -40,16 +40,12 @@ data class DestinoPrincipal(
 /**
  * Los destinos de la barra inferior.
  *
- * **Dos ítems, no tres.** Con un solo destino más el que se está por agregar, un tercer
- * ítem sería un destino muerto o, peor, una "Agenda" vacía que promete una pantalla que
- * es del slice 4. Agregarla después es agregar la línea, no tocar `BarraInferior`.
- *
- * El orden es el de uso: al cliente es a quien el profesional busca y a quien le escribe,
- * así que va primero y es el destino de arranque.
+ * **Dos ítems: Turnos y Clientes.** `Servicios` deja de estar en la barra y pasa al
+ * overflow del top bar de Turnos.
  */
 val DESTINOS_PRINCIPALES: List<DestinoPrincipal> = listOf(
+    DestinoPrincipal(Turnos, Turnos::class, R.string.nav_turnos, Icons.Filled.DateRange),
     DestinoPrincipal(Clientes, Clientes::class, R.string.nav_clientes, Icons.Filled.Groups),
-    DestinoPrincipal(Servicios, Servicios::class, R.string.nav_servicios, Icons.Filled.Spa),
 )
 
 /**
