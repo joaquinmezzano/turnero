@@ -463,7 +463,7 @@ así que tests JUnit 4 también funcionan ahí.
 ./gradlew assembleDebug          # build
 ./gradlew testDebugUnitTest      # tests JVM — feedback rápido
 ./gradlew detekt                 # análisis estático
-./gradlew connectedDebugAndroidTest   # instrumentados — requiere emulador (~10 min)
+./gradlew connectedDebugAndroidTest   # instrumentados — requiere emulador (ver abajo)
 
 # Verificación completa antes de cerrar un slice:
 ./gradlew clean assembleDebug testDebugUnitTest detekt
@@ -474,6 +474,54 @@ así que tests JUnit 4 también funcionan ahí.
 
 En CI los instrumentados corren **solo en `main`**: el emulador cuesta ~10 min de boot y no
 justifica pagarlo en cada PR.
+
+### Emulador para los instrumentados
+
+`connectedDebugAndroidTest` necesita un dispositivo o emulador encendido. Provisionarlo desde
+cero es una sola vez por máquina:
+
+```bash
+export ANDROID_HOME=$HOME/Android/Sdk
+export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$PATH"
+
+# 1. Bajar el emulador y una imagen de sistema (la primera vez, ~1 GB).
+android sdk install emulator
+android sdk install "system-images;android-36;aosp_atd;x86_64"
+
+# 2. Crear el AVD (API 36 = targetSdk).
+echo no | avdmanager create avd -n turnero_api36 \
+  -k "system-images;android-36;aosp_atd;x86_64" -d pixel_6 --force
+
+# 3. Arrancarlo headless.
+nohup emulator -avd turnero_api36 -no-window -no-audio -no-boot-anim \
+  -no-snapshot -gpu swiftshader_indirect -memory 2048 -cores 2 \
+  > /tmp/emulator.log 2>&1 &
+
+# 4. Esperar el boot.
+adb wait-for-device
+until [ "$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = "1" ]; do sleep 10; done
+
+# 5. Correr los instrumentados.
+./gradlew connectedDebugAndroidTest
+
+# 6. Apagarlo.
+adb emu kill
+```
+
+**Por qué `aosp_atd`:** es la imagen *Automated Test Device*, optimizada para correr tests:
+arranca más rápido y consume menos RAM que una imagen con Google Play. La variante `x86_64`
+es la que acelera con KVM.
+
+**Requisito de hardware:** el emulador x86_64 necesita `/dev/kvm` (virtualización anidada;
+sin eso arranca por software y es inviablemente lento) **y RAM de sobra**. Una imagen API 36
+pide ~2 GB para el guest más el overhead del host. En una máquina con poca RAM libre el
+emulador **crashea al arrancar**; en ese caso liberen memoria (cerrar IDE, navegador, otros
+emuladores) o corran los instrumentados en CI, donde el runner tiene más headroom. Bajen
+`-memory` sólo como último recurso: por debajo de ~1.5 GB el guest suele quedar inestable.
+
+**16 KB page size:** Play lo exige desde nov 2025. Para ejercitar ese caso hay imágenes
+`..._ps16k` (p. ej. `system-images;android-36;google_apis_ps16k;x86_64`); un AVD con esa
+imagen es la forma de validar el requisito en runtime.
 
 ---
 
