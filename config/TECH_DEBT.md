@@ -463,3 +463,45 @@ agenda sin `servicioNombre`, que es exactamente el bug que la proyección vino a
 **Disparador.** La próxima vez que se toque `TurnoDao` o su repositorio: borrarlas y migrar sus
 tests a las variantes con servicio, o marcarlas explícitamente como "sólo para tests que no
 proyectan".
+
+---
+
+### `VentanaAtencion` es un valor fijo, no un `HorarioAtencion` por día
+
+**Qué.** `VENTANA_POR_DEFECTO` (08:00–22:00) se inyecta como valor constante en
+`CrearTurnoUseCase` y `ActualizarTurnoUseCase`. No hay horario por día de semana ni cierre
+distinto según el día.
+
+**Por qué se puede postergar.** El MVP atiende con una única ventana. La ventana se inyecta
+como valor y no se lee dentro de la función justamente para que el Slice 6 cambie la
+implementación sin tocar los call sites.
+
+**Disparador.** Slice 6: `HorarioAtencion` por día de semana.
+
+---
+
+### Excepción deliberada a `servicios.deletedAt` en los JOIN de turnos
+
+**Qué.** `observarDelDiaConServicio`, `observarDeClienteConServicio`, `obtenerPorIdConServicio`
+y `observarUltimaVisita` **no** filtran `servicios.deletedAt` (sí filtran `turnos.deletedAt`).
+El nombre del servicio de un turno es un hecho histórico, no un dato vigente; `Turno` guarda
+snapshot de `duracionMin` pero no del nombre, así que filtrar el servicio borraría el nombre
+justo donde el dato existe.
+
+**Por qué se acepta.** Está escrito con nombre y motivo en el KDoc de cada query, y cubierto
+por `TurnoDaoTest` (`elNombreDelServicioSobreviveAlSoftDeleteDelServicio`).
+
+**Disparador.** Cuando alguien aplique a ciegas el grep de `deletedAt` de AGENTS.md y "corrija"
+una de estas queries sin leer el motivo. El test falla antes de que el bug llegue a la ficha.
+
+---
+
+### La grilla no conoce horarios de atención: 15 filas fijas
+
+**Qué.** `construirGrilla` arma siempre las filas de 08:00 a 22:00, sin importar el día ni si
+el profesional atiende distinto ese día.
+
+**Por qué se puede postergar.** Depende de `HorarioAtencion`, que todavía no existe: la grilla
+del Slice 3 es una lista de horas agendables, no una agenda con huecos.
+
+**Disparador.** Slice 6: las filas de la grilla pasan a derivarse del horario del día.

@@ -13,6 +13,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
@@ -161,7 +162,7 @@ fun TurnoEditorScreen(
                     label = { Text(stringResource(R.string.turnos_editor_hora)) },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = horaExpandida) },
                     modifier = Modifier
-                        .menuAnchor()
+                        .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
                         .fillMaxWidth(),
                 )
                 ExposedDropdownMenu(
@@ -192,7 +193,7 @@ fun TurnoEditorScreen(
                     placeholder = { Text(stringResource(R.string.turnos_editor_seleccionar_cliente)) },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = clienteExpandido) },
                     modifier = Modifier
-                        .menuAnchor()
+                        .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
                         .fillMaxWidth(),
                 )
                 ExposedDropdownMenu(
@@ -223,7 +224,7 @@ fun TurnoEditorScreen(
                     placeholder = { Text(stringResource(R.string.turnos_editor_seleccionar_servicio)) },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = servicioExpandido) },
                     modifier = Modifier
-                        .menuAnchor()
+                        .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
                         .fillMaxWidth(),
                 )
                 ExposedDropdownMenu(

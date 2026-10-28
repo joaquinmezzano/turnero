@@ -1,7 +1,8 @@
 # Slice 3 — Turnos: diseño
 
-Estado: aprobado para implementar.
+Estado: implementado y cerrado.
 Fecha: 2026-09-30.
+Cerrado: 2026-10-28.
 
 Este slice entrega `Turno` de punta a punta —CRUD, máquina de estados, validación de
 solapamiento y estadísticas de cliente— e invierte la arquitectura de información: **Turnos
